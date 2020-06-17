@@ -79,10 +79,27 @@ export const breakTextIntoLines = (
       currLine += ' ';
       pushCurrLine();
     } else {
-      const width = computeWidthOfText(word);
-      if (currWidth + width > maxWidth) pushCurrLine();
-      currLine += word;
-      currWidth += width;
+      let wordPartial = word;
+      let partialWidth = computeWidthOfText(wordPartial);
+
+      while(true) {
+        if (currWidth + partialWidth > maxWidth) {
+          wordPartial = wordPartial.substring(0, wordPartial.length - 1);
+          partialWidth = computeWidthOfText(wordPartial);
+        } else {
+          break;
+        }
+      }
+
+      currLine += wordPartial;
+      currWidth += partialWidth;
+      pushCurrLine();
+
+      const nextWord = word.replace(wordPartial, '');
+      const nextWidth = computeWidthOfText(nextWord);
+
+      currLine += nextWord;
+      currWidth += nextWidth;
     }
   }
   pushCurrLine();
