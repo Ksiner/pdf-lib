@@ -72,6 +72,33 @@ export const breakTextIntoLines = (
     currLine = '';
     currWidth = 0;
   };
+  const breakLineRecuresivly = (word: string): void => {
+    let wordPartial = word;
+    let partialWidth = computeWidthOfText(wordPartial);
+    while(true) {
+        if (currWidth + partialWidth > maxWidth) {
+            wordPartial = wordPartial.substring(0, wordPartial.length - 1);
+            partialWidth = computeWidthOfText(wordPartial);
+        } else {
+            break;
+        }
+    }
+    currLine += wordPartial;
+    currWidth += partialWidth;
+    pushCurrLine();
+
+    const nextWord = word.replace(wordPartial, '');
+    const nextWidth = computeWidthOfText(nextWord);
+
+    if (nextWord.length) {
+        if (nextWidth > maxWidth) return breakLineRecuresivly(nextWord);
+
+        currLine += nextWord;
+        currWidth += nextWidth;
+    }
+
+    return;
+  };
 
   for (let idx = 0, len = words.length; idx < len; idx++) {
     const word = words[idx];
@@ -79,27 +106,13 @@ export const breakTextIntoLines = (
       currLine += ' ';
       pushCurrLine();
     } else {
-      let wordPartial = word;
-      let partialWidth = computeWidthOfText(wordPartial);
-
-      while(true) {
-        if (currWidth + partialWidth > maxWidth) {
-          wordPartial = wordPartial.substring(0, wordPartial.length - 1);
-          partialWidth = computeWidthOfText(wordPartial);
-        } else {
-          break;
-        }
+      const width = computeWidthOfText(word);
+      if (currWidth + width > maxWidth) {
+          breakLineRecuresivly(word);
+      } else {
+          currLine += word;
+          currWidth += width;
       }
-
-      currLine += wordPartial;
-      currWidth += partialWidth;
-      pushCurrLine();
-
-      const nextWord = word.replace(wordPartial, '');
-      const nextWidth = computeWidthOfText(nextWord);
-
-      currLine += nextWord;
-      currWidth += nextWidth;
     }
   }
   pushCurrLine();
